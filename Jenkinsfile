@@ -4,7 +4,6 @@ pipeline {
     environment {
         DOCKER_IMAGE = 'stradivirus/hello'
         DOCKER_CREDENTIALS = credentials('docker')
-        GITHUB_CREDENTIALS = credentials('git')
     }
 
     stages {
@@ -16,20 +15,16 @@ pipeline {
 
         stage('Build Docker Image') {
             steps {
-                script {
-                    docker.build("${DOCKER_IMAGE}:${env.BUILD_NUMBER}")
-                }
+                sh "docker build -t ${DOCKER_IMAGE}:${env.BUILD_NUMBER} ."
             }
         }
 
         stage('Push Docker Image') {
             steps {
-                script {
-                    docker.withRegistry('https://index.docker.io/v1/', DOCKER_CREDENTIALS) {
-                        def dockerImage = docker.image("${DOCKER_IMAGE}:${env.BUILD_NUMBER}")
-                        dockerImage.push()
-                        dockerImage.push('latest')
-                    }
+                withCredentials([usernamePassword(credentialsId: 'docker', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
+                    sh "echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin"
+                    sh "docker push ${DOCKER_IMAGE}:${env.BUILD_NUMBER}"
+                    sh "docker push ${DOCKER_IMAGE}:latest"
                 }
             }
         }
@@ -37,7 +32,6 @@ pipeline {
         stage('Deploy') {
             steps {
                 echo "Deploying ${DOCKER_IMAGE}:${env.BUILD_NUMBER}"
-                // 실제 배포 단계를 여기에 추가하세요
             }
         }
     }
