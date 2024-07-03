@@ -4,6 +4,7 @@ pipeline {
     environment {
         DOCKER_IMAGE = 'stradivirus/hello'
         DOCKER_CREDENTIALS = credentials('docker')
+        GITHUB_CREDENTIALS = credentials('git')
     }
 
     stages {
@@ -34,27 +35,22 @@ pipeline {
                 echo "Deploying ${DOCKER_IMAGE}:${env.BUILD_NUMBER}"
             }
         }
-    }
 
-    post {
-        always {
-            sh "docker rmi ${DOCKER_IMAGE}:${env.BUILD_NUMBER} || true"
-        }
-        success {
-            emailext (
-                subject: "빌드 성공: ${env.JOB_NAME} [${env.BUILD_NUMBER}]",
-                body: "빌드가 성공적으로 완료되었습니다.\n\n빌드 URL: ${env.BUILD_URL}",
-                to: "stradivirus9@gmail.com",
-                from: "jenkins@example.com"
-            )
-        }
-        failure {
-            emailext (
-                subject: "빌드 실패: ${env.JOB_NAME} [${env.BUILD_NUMBER}]",
-                body: "빌드가 실패했습니다. 자세한 내용은 로그를 확인해주세요.\n\n빌드 URL: ${env.BUILD_URL}",
-                to: "stradivirus9@gmail.com",
-                from: "jenkins@example.com"
-            )
+        stage('Push to GitHub') {
+            when {
+                expression { currentBuild.resultIsBetterOrEqualTo('SUCCESS') }
+            }
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'git', usernameVariable: 'GIT_USERNAME', passwordVariable: 'GIT_PASSWORD')]) {
+                    sh """
+                        git config user.email "jenkins@example.com"
+                        git config user.name "Jenkins"
+                        git add .
+                        git commit -m "Jenkins 빌드 #${env.BUILD_NUMBER} 결과 푸시"
+                        git push https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/Stradivirus/hello.git HEAD:main
+                    """
+                }
+            }
         }
     }
 }
