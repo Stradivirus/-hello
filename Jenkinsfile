@@ -3,6 +3,7 @@ pipeline {
 
     environment {
         DOCKER_IMAGE = 'stradivirus/hello'
+        DOCKER_CREDENTIALS = credentials('docker-hub-credentials')
     }
 
     stages {
@@ -33,8 +34,6 @@ pipeline {
 
         stage('Deploy') {
             steps {
-                // 여기에 배포 스크립트를 추가하세요. 예:
-                // sh "docker run -d -p 5000:5000 ${DOCKER_IMAGE}:${env.BUILD_NUMBER}"
                 echo "Deploying ${DOCKER_IMAGE}:${env.BUILD_NUMBER}"
             }
         }
@@ -42,7 +41,6 @@ pipeline {
 
     post {
         always {
-            // 정리 작업
             sh "docker rmi ${DOCKER_IMAGE}:${env.BUILD_NUMBER}"
         }
     }
