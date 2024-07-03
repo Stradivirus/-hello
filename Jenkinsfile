@@ -36,19 +36,5 @@ pipeline {
             }
         }
 
-        stage('Push to GitHub') {
-            when {
-                expression { currentBuild.resultIsBetterOrEqualTo('SUCCESS') }
-            }
-            steps {
-                withCredentials([usernamePassword(credentialsId: 'git', usernameVariable: 'GIT_USERNAME', passwordVariable: 'GIT_PASSWORD')]) {
-                    sh """
-                        git add .
-                        git commit -m "${env.BUILD_NUMBER} 결과 푸시"
-                        git push https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/Stradivirus/hello.git HEAD:main
-                    """
-                }
-            }
-        }
-    }
-}
+        
+    }}
