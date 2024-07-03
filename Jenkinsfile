@@ -41,30 +41,4 @@ pipeline {
             }
         }
 
-        stage('Push to GitHub') {
-            when {
-                expression { currentBuild.resultIsBetterOrEqualTo('SUCCESS') }
-            }
-            steps {
-                withCredentials([usernamePassword(credentialsId: 'git', usernameVariable: 'GIT_USERNAME', passwordVariable: 'GIT_PASSWORD')]) {
-                    script {
-                        def encodedPassword = URLEncoder.encode("$GIT_PASSWORD", "UTF-8")
-                        sh """
-                            git config user.email "stradivirus9@gmail.com"
-                            git config user.name "stradivirus"
-                            git add .
-                            git diff --quiet && git diff --staged --quiet || git commit -m "Build successful: ${env.BUILD_NUMBER}"
-                            git push https://${GIT_USERNAME}:${encodedPassword}@github.com/Stradivirus/hello.git HEAD:master
-                        """
-                    }
-                }
-            }
-        }
-    }
-
-    post {
-        always {
-            cleanWs()
-        }
-    }
-}
+    }}
