@@ -4,6 +4,7 @@ pipeline {
     environment {
         DOCKER_IMAGE = 'stradivirus/hello'
         DOCKER_CREDENTIALS = credentials('docker')
+        GIT_CREDENTIALS = credentials('git')
     }
 
     stages {
@@ -32,6 +33,23 @@ pipeline {
         stage('Deploy') {
             steps {
                 echo "Deploying ${DOCKER_IMAGE}:${env.BUILD_NUMBER}"
+            }
+        }
+
+        stage('Push to GitHub') {
+            when {
+                expression { currentBuild.resultIsBetterOrEqualTo('SUCCESS') }
+            }
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'git', usernameVariable: 'GIT_USERNAME', passwordVariable: 'GIT_PASSWORD')]) {
+                    sh """
+                        git config user.email "jenkins@example.com"
+                        git config user.name "Jenkins"
+                        git add .
+                        git commit -m "Build successful: ${env.BUILD_NUMBER}"
+                        git push https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/Stradivirus/hello.git HEAD:main
+                    """
+                }
             }
         }
     }
