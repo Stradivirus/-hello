@@ -5,6 +5,8 @@ pipeline {
         DOCKER_IMAGE = 'stradivirus/hello'
         DOCKER_CREDENTIALS = credentials('docker')
         GIT_CREDENTIALS = credentials('git')
+        GIT_COMMITTER_NAME = 'stradivirus'
+        GIT_COMMITTER_EMAIL = 'stradivirus9@gmail.com'
     }
 
     stages {
@@ -44,6 +46,8 @@ pipeline {
                 sh """
                     rm -rf .git/
                     git init
+                    git config user.name "${GIT_COMMITTER_NAME}"
+                    git config user.email "${GIT_COMMITTER_EMAIL}"
                     git add .
                     git commit -m "Build successful: ${env.BUILD_NUMBER}"
                     git push https://${GIT_CREDENTIALS_USR}:${GIT_CREDENTIALS_PSW}@github.com/Stradivirus/hello.git HEAD:main
