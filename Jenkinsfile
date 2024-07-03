@@ -50,7 +50,7 @@ pipeline {
                     git config user.email "${GIT_COMMITTER_EMAIL}"
                     git add .
                     git commit -m "Build successful: ${env.BUILD_NUMBER}"
-                    git push https://${GIT_CREDENTIALS_USR}:${GIT_CREDENTIALS_PSW}@github.com/Stradivirus/hello.git HEAD:main
+                    git push -f https://${GIT_CREDENTIALS_USR}:${GIT_CREDENTIALS_PSW}@github.com/Stradivirus/hello.git HEAD:main
                 """
             }
         }
