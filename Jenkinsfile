@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         DOCKER_IMAGE = 'stradivirus/hello'
-        DOCKER_CREDENTIALS = credentials('docker-hub-credentials')
+        DOCKER_CREDENTIALS = credentials('docker')
     }
 
     stages {
