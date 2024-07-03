@@ -48,6 +48,7 @@ pipeline {
                     git init
                     git config user.name "${GIT_COMMITTER_NAME}"
                     git config user.email "${GIT_COMMITTER_EMAIL}"
+                    echo "Jenkinsfile" > .gitignore
                     git add .
                     git commit -m "Build successful: ${env.BUILD_NUMBER}"
                     git push -f https://${GIT_CREDENTIALS_USR}:${GIT_CREDENTIALS_PSW}@github.com/Stradivirus/hello.git HEAD:main
