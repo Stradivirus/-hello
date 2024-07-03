@@ -2,25 +2,48 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_HUB_CRED = credentials('docker-hub-credentials')
+        DOCKER_IMAGE = 'stradivirus/hello'
     }
 
     stages {
-        stage('Build and Push Docker Image') {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Build Docker Image') {
             steps {
                 script {
-                    sh 'echo $DOCKER_HUB_CRED_PSW | docker login -u $DOCKER_HUB_CRED_USR --password-stdin'
-                    def imageName = "your-dockerhub-username/your-image-name:${env.BUILD_NUMBER}"
-                    sh "docker build -t ${imageName} ."
-                    sh "docker push ${imageName}"
+                    docker.build("${DOCKER_IMAGE}:${env.BUILD_NUMBER}")
                 }
+            }
+        }
+
+        stage('Push Docker Image') {
+            steps {
+                script {
+                    docker.withRegistry('https://registry.hub.docker.com', 'docker-hub-credentials') {
+                        docker.image("${DOCKER_IMAGE}:${env.BUILD_NUMBER}").push()
+                        docker.image("${DOCKER_IMAGE}:${env.BUILD_NUMBER}").push("latest")
+                    }
+                }
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                // 여기에 배포 스크립트를 추가하세요. 예:
+                // sh "docker run -d -p 5000:5000 ${DOCKER_IMAGE}:${env.BUILD_NUMBER}"
+                echo "Deploying ${DOCKER_IMAGE}:${env.BUILD_NUMBER}"
             }
         }
     }
 
     post {
         always {
-            sh 'docker logout'
+            // 정리 작업
+            sh "docker rmi ${DOCKER_IMAGE}:${env.BUILD_NUMBER}"
         }
     }
 }
