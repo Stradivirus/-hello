@@ -43,10 +43,8 @@ pipeline {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'git', usernameVariable: 'GIT_USERNAME', passwordVariable: 'GIT_PASSWORD')]) {
                     sh """
-                        git config user.email "jenkins@example.com"
-                        git config user.name "Jenkins"
                         git add .
-                        git commit -m "Jenkins 빌드 #${env.BUILD_NUMBER} 결과 푸시"
+                        git commit -m "${env.BUILD_NUMBER} 결과 푸시"
                         git push https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/Stradivirus/hello.git HEAD:main
                     """
                 }
