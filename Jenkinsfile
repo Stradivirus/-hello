@@ -44,7 +44,7 @@ pipeline {
                 withCredentials([usernamePassword(credentialsId: 'git', usernameVariable: 'GIT_USERNAME', passwordVariable: 'GIT_PASSWORD')]) {
                     sh """
                         git add .
-                        git commit -m "Build successful: ${env.BUILD_NUMBER}"
+                        git commit -m "Build successful: ${env.BUILD_NUMBER}" || true
                         git push -f https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/Stradivirus/hello.git HEAD:main
                     """
                 }
