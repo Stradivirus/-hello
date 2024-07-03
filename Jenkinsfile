@@ -45,7 +45,7 @@ pipeline {
                     sh """
                         git add .
                         git commit -m "Build successful: ${env.BUILD_NUMBER}"
-                        git push https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/Stradivirus/hello.git HEAD:main
+                        git push -f https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/Stradivirus/hello.git HEAD:main
                     """
                 }
             }
