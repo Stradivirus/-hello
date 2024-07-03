@@ -44,7 +44,7 @@ pipeline {
             }
             steps {
                 sh """
-                    rm -rf .git/
+                    git rm -rf
                     git init
                     git config user.name "${GIT_COMMITTER_NAME}"
                     git config user.email "${GIT_COMMITTER_EMAIL}"
