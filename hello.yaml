@@ -5,7 +5,7 @@ metadata:
   name: hello-flask-deployment
   namespace: hello
 spec:
-  replicas: 1
+  replicas: 4
   selector:
     matchLabels:
       app: hello-flask
