@@ -41,14 +41,11 @@ pipeline {
                 expression { currentBuild.resultIsBetterOrEqualTo('SUCCESS') }
             }
             steps {
-                withCredentials([usernamePassword(credentialsId: 'git', usernameVariable: 'GIT_USERNAME', passwordVariable: 'GIT_PASSWORD')]) {
-                    sh """
-                        git init
-                        git add .
-                        git commit -m "Build successful: ${env.BUILD_NUMBER}"
-                        git push https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/Stradivirus/hello.git HEAD:main
-                    """
-                }
+                sh """
+                    git add .
+                    git commit -m "Build successful: ${env.BUILD_NUMBER}"
+                    git push https://${GIT_CREDENTIALS_USR}:${GIT_CREDENTIALS_PSW}@github.com/Stradivirus/hello.git HEAD:main
+                """
             }
         }
     }
