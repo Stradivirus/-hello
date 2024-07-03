@@ -16,16 +16,20 @@ pipeline {
 
         stage('Build Docker Image') {
             steps {
-                sh "docker build -t ${DOCKER_IMAGE}:${env.BUILD_NUMBER} ."
+                script {
+                    docker.build("${DOCKER_IMAGE}:${env.BUILD_NUMBER}")
+                }
             }
         }
 
         stage('Push Docker Image') {
             steps {
-                withCredentials([usernamePassword(credentialsId: 'docker', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
-                    sh "echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin"
-                    sh "docker push ${DOCKER_IMAGE}:${env.BUILD_NUMBER}"
-                    sh "docker push ${DOCKER_IMAGE}:latest"
+                script {
+                    docker.withRegistry('https://index.docker.io/v1/', 'docker') {
+                        def dockerImage = docker.image("${DOCKER_IMAGE}:${env.BUILD_NUMBER}")
+                        dockerImage.push()
+                        dockerImage.push('latest')
+                    }
                 }
             }
         }
@@ -33,6 +37,7 @@ pipeline {
         stage('Deploy') {
             steps {
                 echo "Deploying ${DOCKER_IMAGE}:${env.BUILD_NUMBER}"
+                // Add actual deployment steps here
             }
         }
 
@@ -42,13 +47,24 @@ pipeline {
             }
             steps {
                 withCredentials([usernamePassword(credentialsId: 'git', usernameVariable: 'GIT_USERNAME', passwordVariable: 'GIT_PASSWORD')]) {
-                    sh """
-                        git add .
-                        git commit -m "Build successful: ${env.BUILD_NUMBER}" || true
-                        git push -f https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/Stradivirus/hello.git HEAD:main
-                    """
+                    script {
+                        def encodedPassword = URLEncoder.encode("$GIT_PASSWORD", "UTF-8")
+                        sh """
+                            git config user.email "stradivirus9@gmail.com"
+                            git config user.name "stradivirus"
+                            git add .
+                            git diff --quiet && git diff --staged --quiet || git commit -m "Build successful: ${env.BUILD_NUMBER}"
+                            git push https://${GIT_USERNAME}:${encodedPassword}@github.com/Stradivirus/hello.git HEAD:master
+                        """
+                    }
                 }
             }
+        }
+    }
+
+    post {
+        always {
+            cleanWs()
         }
     }
 }
