@@ -2,7 +2,6 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: hello-flask-deployment
-  namespace: hello
 spec:
   replicas: 2
 
