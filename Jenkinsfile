@@ -25,7 +25,7 @@ pipeline {
         stage('Push Docker Image') {
             steps {
                 script {
-                    docker.withRegistry('https://index.docker.io/v1/', 'docker') {
+                    docker.withRegistry('https://index.docker.io/v1/', DOCKER_CREDENTIALS) {
                         def dockerImage = docker.image("${DOCKER_IMAGE}:${env.BUILD_NUMBER}")
                         dockerImage.push()
                         dockerImage.push('latest')
@@ -37,8 +37,8 @@ pipeline {
         stage('Deploy') {
             steps {
                 echo "Deploying ${DOCKER_IMAGE}:${env.BUILD_NUMBER}"
-                // Add actual deployment steps here
+                // 실제 배포 단계를 여기에 추가하세요
             }
         }
-
-    }}
+    }
+}
